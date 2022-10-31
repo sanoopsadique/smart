@@ -10,6 +10,10 @@ def writeLog(msg,logFile):
     now = datetime.datetime.now() 
     logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
     logger.close()
+
+def writeWeb(msg):
+    with open("/etc/smart/server/web/index.html","at") as f:
+        f.write(msg)
 	
 if __name__ == "__main__": 
 #def honeypot_server(client,BUFFER_SIZE,logFile):
@@ -22,9 +26,11 @@ if __name__ == "__main__":
     #client[2] = Passcode
     err_count = 0
     client = []
-    with open(sys.argv[1],'rt') as f:
+    settingsfile = "/smart/settings/"+sys.argv[1]
+    with open(settingsfile,'rt') as f:
         settings = f.readline()
     client = settings.split(':')
+    # client_ip:port to listen:encrypted passcode:interval:BUFFER_SIZE: RPC port
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('',int(client[1])))
     while True:
@@ -44,7 +50,7 @@ if __name__ == "__main__":
                     writeLog("Honeypot at "+client[0]+" has wrong passcode",logFile)
                     status = "wrong-pass"
                     conn.sendall(status.encode())
-                    time.sleep(2) 
+                    time.sleep(1) 
                     conn.close()
                     continue
                 else:
@@ -52,7 +58,7 @@ if __name__ == "__main__":
                     print("Honeypot at "+client[0]+" connected. Sending success")
                     status = "success"
                     conn.sendall(status.encode())
-                    time.sleep(2) 
+                    time.sleep(1) 
                     break
                     
                 err_count = 0
