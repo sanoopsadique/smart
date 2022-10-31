@@ -1,0 +1,12 @@
+#Server IP ADDRESS
+10.10.10.1
+#Server port number:
+9999
+#Buffer Size: 
+1024
+#Honeypot listening port:
+80
+#Log file
+/etc/smart/hpclient/hplog
+#Passcode
+12345678

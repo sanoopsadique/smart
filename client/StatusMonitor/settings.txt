@@ -1,0 +1,12 @@
+#Server IP ADDRESS
+10.10.10.1
+#Server port number:
+9998
+#Buffer Size: 
+1024
+#services:
+named:dhcpd:sshd
+#Log file
+/etc/smart/smclient/smlog
+#Passcode
+12345678
