@@ -1,0 +1,11 @@
+#define the buffer size
+1024
+#
+#Define log file path
+/etc/smart/server/smartlog
+#Define RPC listen port for notification handling
+5000
+#defining client-list
+#mode:client-ip:port:passcode:update interval
+H:10.10.10.12:9999:12345678:0
+M:10.10.10.12:9998:12345678:10
