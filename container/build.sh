@@ -5,7 +5,7 @@ if [ $# -eq 0 ]
     read tag
     if [ tag == '']
         tag='latest'
-    fi
+    
   else
     tag=$1
 fi
