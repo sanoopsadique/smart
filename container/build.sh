@@ -4,8 +4,7 @@ if [ $# -eq 0 ]
     echo Enter tag?
     read tag
     if [ tag == '']
-        then
-            tag='latest'
+        tag='latest'
     fi
   else
     tag=$1
@@ -17,4 +16,5 @@ read choice
 if [ choice == 'y']
         then
             docker push sanoopsadique/smart:$tag
+fi
     
