@@ -12,9 +12,9 @@ if [ $# -eq 0 ]
 fi
 
 docker build -t sanoopsadique/smart:$tag .
-echo Do you want to pull the image to docker hub?
+echo Do you want to pull the image to docker hub - y/n:?
 read choice
-if [ $choice == 'y']
+if [ $choice == 'y' ]
     then
         docker push sanoopsadique/smart:$tag
 fi
