@@ -1,3 +1,4 @@
+#smart server settings file
 #define the buffer size
 1024
 #
