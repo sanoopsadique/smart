@@ -3,9 +3,10 @@ if [ $# -eq 0 ]
   then
     echo Enter tag?
     read tag
-    if [ tag == '']
-        tag='latest'
-    
+    if [ $tag == '']
+        then
+            tag='latest'
+    fi
   else
     tag=$1
 fi
