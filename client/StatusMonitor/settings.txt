@@ -1,3 +1,4 @@
+#Status monitor client settings
 #Server IP ADDRESS
 10.10.10.1
 #Server port number:
@@ -7,6 +8,6 @@
 #services:
 named:dhcpd:sshd
 #Log file
-smclient/smlog
+smlog
 #Passcode
 12345678

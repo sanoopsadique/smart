@@ -1,3 +1,4 @@
+#Honeypot Client settings
 #Server IP ADDRESS
 10.10.10.1
 #Server port number:
@@ -7,6 +8,6 @@
 #Honeypot listening port:
 80
 #Log file
-hpclient/hplog
+hplog
 #Passcode
 12345678
