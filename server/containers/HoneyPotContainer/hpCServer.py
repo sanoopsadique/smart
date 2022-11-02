@@ -13,8 +13,10 @@ def writeLog(msg,logFile):
     logger.close()
 
 def writeWeb(msg):
-    with open("/etc/smart/server/web/index.html","at") as f:
-        f.write(msg)
+    with open("/etc/smart/server/web/index.html","rt") as f:
+        content = f.readlines()
+    with open("/etc/smart/server/web/index.html","wt") as f:
+        f.write(msg+content)
 	
 if __name__ == "__main__": 
 #def honeypot_server(client,BUFFER_SIZE,logFile):

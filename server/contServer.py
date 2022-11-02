@@ -13,8 +13,10 @@ def writeLog(msg,logFile):
     logger.close()
 
 def writeWeb(msg):
-    with open("/etc/smart/server/web/index.html","at") as f:
-        f.write(msg)
+    with open("/etc/smart/server/web/index.html","rt") as f:
+        content = f.readlines()
+    with open("/etc/smart/server/web/index.html","wt") as f:
+        f.write(msg+content)
 
 
 if __name__ == "__main__": 
@@ -71,15 +73,15 @@ if __name__ == "__main__":
     writeWeb("<p>Status Monitoring container(s) deloyed, starting honeypot container deployment</p>/n")
                 
     for client in honeyPots:
-        #honeypot_server(client,BUFFER_SIZE,logFile)
         fileName = contSettingsFolder+"/hp-"+client[1]
         with open(fileName,'wt') as f:
             #add values to settings file client_ip\nport\npasscode\ninterval\npipe\nwebport
             f.write(client[0]+":"+client[1]+":"+client[2]+":"+":"+BUFFER_SIZE+":"+rpcListen)
         
-        os.system('docker run -d -v '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ '--hostname hp-'+client[1]+ 'sanoopsadique/smart python3 /smart/smCserver.py hp-'+client[1]) 
+        os.system('docker run -d -v '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ 'sanoopsadique/smart:latest python3 /smart/smCserver.py hp-'+client[1]) 
         
         webport = str(int(client[1])+1000)
+        print("Honeypot server container for client at "+client[0]+ "started. View status on \\\\localhost:"+webport+ "\\ \n")
         writeWeb("<p>Honeypot server container for client at "+client[0]+ "started. <a href=\"\\\\localhost:"+webport+ "\\ target=_blank> Click here to view status</a></p>\n")
         
     print("Honeypot container(s) deloyed.")

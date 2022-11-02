@@ -5,7 +5,7 @@ import socket, sys
 
 
 hostName = ""
-serverPort = int(sys.argv[1])
+serverPort = 5001
 
 class MyServer(BaseHTTPRequestHandler): 
     def do_GET(self):

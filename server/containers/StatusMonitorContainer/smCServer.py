@@ -26,9 +26,11 @@ if __name__ == "__main__":
     # Client_status:
     # 0 - never attempted connected, 1 - previous unsuccessful connection, 2 - connected, 5 - reset connection due to no heartbeat
     client = []
+    SEPARATOR = ":"
+    logFile = "/smart/log"
     with open(sys.argv[1],'rt') as f:
         settings = f.readline()
-    client = settings.split(':')
+    clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split(':')
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('',int(client[1])))
     client_status = 0
@@ -49,9 +51,8 @@ if __name__ == "__main__":
                 recvd = conn.recv(BUFFER_SIZE).decode()
                 passcode,service_list= recvd.split(':')
                 service_list = eval(service_list)
-                client[2] = hashlib.md5(client[2].encode()).hexdigest()
                 
-                if passcode != client[2]:
+                if passcode != passKey:
                     #passcodes do not match
                     writeLog("SM CLient at "+client[0]+" has wrong passcode",logFile)
                     print("SM CLient at "+client[0]+" has wrong passcode")
