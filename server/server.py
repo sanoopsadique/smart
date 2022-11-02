@@ -13,9 +13,9 @@ def writeLog(msg,logFile):
     logger.close()
 
 def writeWeb(msg):
-    with open("/etc/smart/server/web/index.html","rt") as f:
+    with open("web/index.html","rt") as f:
         content = f.readlines()
-    with open("/etc/smart/server/web/index.html","wt") as f:
+    with open("web/index.html","wt") as f:
         f.write(msg+content)
 
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     print("SMART Server starting")
     
     settings_info = []
-    with open("/etc/smart/server/serversettings.txt","rt") as f:
+    with open("settings.txt","rt") as f:
         settings_temp = f.readlines()
 
         for line in settings_temp:
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     del settings_info[0]
     #writeLog("Program started successfully, getting list of clients",logFile)
     writeWeb("<html><head><title>SMART Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
-    contSettingsFolder = "/etc/smart/server/containers/"
+    contSettingsFolder = "containers/"
     client_qty=len(settings_info)
     honeyPots = []
     statusMon= [] 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     writeWeb("<p>Honeypot container(s) deloyment complete</p>/n")
                 
     print("Starting web service")
-    p = subprocess.Popen(["python3 ","/etc/smart/server/web/mainweb.py"])
+    p = subprocess.Popen(["python3 ","web/mainweb.py"])
     time.sleep(2)
     print("Web service started. Visit \\\\localhost\\:"+str(rpcListen)+"\\ to view web page")
     print("Listening for notification requests:")

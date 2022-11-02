@@ -7,6 +7,6 @@
 #services:
 named:dhcpd:sshd
 #Log file
-/etc/smart/smclient/smlog
+smclient/smlog
 #Passcode
 12345678

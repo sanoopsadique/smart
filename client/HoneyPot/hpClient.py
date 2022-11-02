@@ -25,7 +25,7 @@ def writeLog(msg,logFile):
     logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
     logger.close()
 
-settings_file = open('/etc/smart/hpclient/settings.txt','rt')
+settings_file = open('settings.txt','rt')
 
 settings_temp = settings_file.readlines()
 settings_info = []

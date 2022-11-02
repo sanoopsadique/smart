@@ -13,9 +13,9 @@ def writeLog(msg,logFile):
     logger.close()
 
 def writeWeb(msg):
-    with open("/etc/smart/server/web/index.html","rt") as f:
+    with open("web/index.html","rt") as f:
         content = f.readlines()
-    with open("/etc/smart/server/web/index.html","wt") as f:
+    with open("web/index.html","wt") as f:
         f.write(msg+content)
 	
 if __name__ == "__main__": 
@@ -28,8 +28,8 @@ if __name__ == "__main__":
     err_count = 0
     SEPARATOR = ":"
     client = []
-    settingsFile = "/smart/settings/"+sys.argv[1]
-    logFile = "/smart/log"
+    settingsFile = "settings/"+sys.argv[1]
+    logFile = "log.txt"
     with open(settingsFile,'rt') as f:
         settings = f.readline()
     clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split('SEPARATOR')

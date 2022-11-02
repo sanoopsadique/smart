@@ -7,6 +7,6 @@
 #Honeypot listening port:
 80
 #Log file
-/etc/smart/hpclient/hplog
+hpclient/hplog
 #Passcode
 12345678

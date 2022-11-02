@@ -14,7 +14,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        filePath = "/etc/smart/server/web/index.html"
+        filePath = "web/index.html"
         with open(filePath) as f:	
             for line in f:
                 self.wfile.write(bytes(line, "utf-8"))

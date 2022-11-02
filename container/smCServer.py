@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # 0 - never attempted connected, 1 - previous unsuccessful connection, 2 - connected, 5 - reset connection due to no heartbeat
     client = []
     SEPARATOR = ":"
-    logFile = "/smart/log"
+    logFile = "log.txt"
     with open(sys.argv[1],'rt') as f:
         settings = f.readline()
     clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split(':')
