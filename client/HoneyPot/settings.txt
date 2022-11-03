@@ -7,7 +7,7 @@
 1024
 #Honeypot listening port:
 80
-#Log file
+#Log file name
 hplog
 #Passcode
 12345678
