@@ -3,7 +3,7 @@ if [ $# -eq 0 ]
   then
     echo Enter tag?
     read tag
-    if [ $tag == '']
+    if [ $tag == '' ]
         then
             tag='latest'
     fi
