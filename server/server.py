@@ -38,7 +38,7 @@ if __name__ == "__main__":
     SEPARATOR = ":"
     BUFFER_SIZE = settings_info[0]
     webService= settings_info[1]
-    rpcListen = int(settings_info[2])
+    rpcListen = settings_info[2]
     del settings_info[0]
     del settings_info[0]
     del settings_info[0]
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     writeWeb("Listening for notification requests:")
     err_count = 0
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('',rpcListen))
+    s.bind(('',int(rpcListen)))
     try:
         while True:
             try:
