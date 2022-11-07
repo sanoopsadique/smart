@@ -4,29 +4,31 @@ import os
 import subprocess
 import socket
 
-
+rootFolder = '/etc/smart/server'
 def writeLog(msg):
-    logFile = "log.txt"
+    global rootFolder
+    logFile = rootFolder+"log.txt"
     with open(logFile,"at") as logger:
         # getting current date and time
         now = datetime.datetime.now() 
         logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
 
 def writeWeb(msg):
-    with open("web/index.html","rt") as f:
+    global rootFolder
+    with open(rootFolder+"web/index.html","rt") as f:
         content = f.readlines()
-    with open("web/index.html","wt") as f:
+    with open(rootFolder+"web/index.html","wt") as f:
         f.write(msg+str(content))
     writeLog(msg)
 
 
 if __name__ == "__main__": 
     
-    with open("web/index.html","wt") as f:
+    with open(rootFolder+"web/index.html","wt") as f:
         f.write("SMART Server starting")
     
     settings_info = []
-    with open("settings.conf","rt") as f:
+    with open(rootFolder+"settings.conf","rt") as f:
         settings_temp = f.readlines()
 
         for line in settings_temp:
@@ -44,7 +46,7 @@ if __name__ == "__main__":
     del settings_info[0]
     #writeLog("Program started successfully, getting list of clients")
     writeWeb("<html><head><title>SMART Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
-    contSettingsFolder = "./containers/"
+    contSettingsFolder = rootFolder+"containers/"
     client_qty=len(settings_info)
     honeyPots = []
     statusMon= [] 
@@ -89,7 +91,7 @@ if __name__ == "__main__":
     writeWeb("<p>Honeypot container(s) deloyment complete</p>/n")
                 
     print("Starting web service")
-    p = subprocess.Popen(["python3","./web.py",webService])
+    p = subprocess.Popen(["python3",rootFolder+"web.py",webService])
     time.sleep(2)
     print("Web service started. Visit \\\\localhost\\:"+webService+"\\ to view web page")
     print("Listening for notification requests:")
