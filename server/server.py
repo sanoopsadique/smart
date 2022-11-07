@@ -61,7 +61,7 @@ if __name__ == "__main__":
     deployedContainers = []
     for client in statusMon:
                 
-        fileName = contSettingsFolder+"/sm-"+client[1]+".conf"
+        fileName = contSettingsFolder+"sm-"+client[1]+".conf"
         with open(fileName,'wt') as f:
             f.write(client[0]+":"+client[1]+":"+client[2]+":"+client[3]+":"+BUFFER_SIZE+":"+rpcListen)
         
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     writeWeb("<p>Status Monitoring container(s) deloyed, starting honeypot container deployment</p>/n")
                 
     for client in honeyPots:
-        fileName = contSettingsFolder+"/hp-"+client[1]+".conf"
+        fileName = contSettingsFolder+"hp-"+client[1]+".conf"
         with open(fileName,'wt') as f:
             #add values to settings file client_ip\nport\npasscode\ninterval\npipe\nwebport
             f.write(client[0]+":"+client[1]+":"+client[2]+":"+client[3]+":"+BUFFER_SIZE+":"+rpcListen) 
