@@ -36,7 +36,7 @@ if __name__ == "__main__":
                 settings_info.append(line.rstrip())
 
     SEPARATOR = ":"
-    BUFFER_SIZE = int(settings_info[0])
+    BUFFER_SIZE = settings_info[0]
     webService= settings_info[1]
     rpcListen = int(settings_info[2])
     del settings_info[0]
@@ -102,7 +102,7 @@ if __name__ == "__main__":
             try:
                 s.listen(client_qty)
                 conn, addr = s.accept()
-                recvd = conn.recv(BUFFER_SIZE).decode()
+                recvd = conn.recv(int(BUFFER_SIZE)).decode()
                 cMode,message = recvd.split(":")
                 print("Message from client " + addr + " to " + cMode + " recipents: "+message)
                 writeWeb("<p>Message from client " + addr + " to " + cMode + " recipents: "+message+"</p>/n")
