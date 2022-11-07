@@ -25,7 +25,7 @@ def writeWeb(msg):
 if __name__ == "__main__": 
     
     with open(rootFolder+"web/index.html","wt") as f:
-        f.write("SMART Server starting")
+        f.write("<html><head><title>SMART Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
     
     settings_info = []
     with open(rootFolder+"settings.conf","rt") as f:
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     del settings_info[0]
     del settings_info[0]
     #writeLog("Program started successfully, getting list of clients")
-    writeWeb("<html><head><title>SMART Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
+    
     contSettingsFolder = rootFolder+"containers/"
     client_qty=len(settings_info)
     honeyPots = []

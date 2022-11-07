@@ -8,17 +8,17 @@ import sys
 import subprocess
 
 def writeLog(msg):
-    logFile = "log.txt"
+    logFile = "/smart/log.txt"
     with open(logFile,"at") as logger:
         # getting current date and time
         now = datetime.datetime.now() 
         logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
     
 def writeWeb(msg):
-    with open("web/index.html","rt") as f:
+    with open("/smart/web/index.html","rt") as f:
         content = f.readlines()
-    with open("web/index.html","wt") as f:
-        f.write(msg+str(content))
+    with open("/smart/web/index.html","wt") as f:
+        f.write("<p>"+msg+"<\p>\n"+str(content))
     writeLog(msg)
 	
 if __name__ == "__main__": 
@@ -31,31 +31,36 @@ if __name__ == "__main__":
     # 0 - never attempted connected, 1 - previous unsuccessful connection, 2 - connected, 5 - reset connection due to no heartbeat
     client = []
     SEPARATOR = ":"
-    settingsFile = "settings/"+sys.argv[1]+".conf"
+    settingsFile = "/smart/settings/"+sys.argv[1]+".conf"
     
-    with open("web/index.html","wt") as f:
-        f.write("Honey server container"+sys.argv[1]+" starting")
+    with open("/smart/web/index.html","wt") as f:
+        f.write("<html><head><title>SMART Container Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
+        
+    writeWeb("Status monitoring server container"+sys.argv[1]+" starting")
     
     with open(sys.argv[1],'rt') as f:
         settings = f.readline()
     
-    clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split(':')
-    webService = str(int(listenPort)+1000)
-    p = subprocess.Popen(["python3","./web.py",webService])
+    clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split(SEPARATOR)
+    listenPort = int(listenPort)
+    webService = str(listenPort+1000)
+    BUFFER_SIZE = int(BUFFER_SIZE)
+    rpcPort = int(rpcPort)
+    p = subprocess.Popen(["python3","/smart/web.py",webService])
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('',int(client[1])))
+    s.bind(('',listenPort))
     client_status = 0
     err_count = 0
     while True:
         while True:
             try:
-                writeWeb("Starting listening for Status monitoring on port "+client[1])
+                writeWeb("Starting listening for Status monitoring on port "+listenPort)
                 s.settimeout(30)
                 s.listen(5)
                 conn, addr = s.accept()
                 
-                if addr[0] != client[0]:
-                    writeLog("Incoming connection from unexpected Honeypot client at "+client[0])
+                if addr[0] != clientIP:
+                    writeWeb("Incoming connection from unexpected Honeypot client at "+clientIP)
                     conn.close()
                     continue
                 
@@ -65,8 +70,8 @@ if __name__ == "__main__":
                 
                 if passcode != passKey:
                     #passcodes do not match
-                    writeLog("SM CLient at "+client[0]+" has wrong passcode")
-                    writeWeb("SM CLient at "+client[0]+" has wrong passcode")
+                    writeLog("SM CLient at "+clientIP+" has wrong passcode")
+                    writeWeb("SM CLient at "+clientIP+" has wrong passcode")
                     # sending status: 0 - connected, 1 - disconnected due to passcode mismatch
                     status = "wrong-pass"
                     conn.sendall(status.encode())
@@ -75,10 +80,10 @@ if __name__ == "__main__":
                     continue
                 else:
                     client_status = 2
-                    writeLog("SM Client at "+client[0]+" connected. Sending success code")
-                    writeWeb("SM Client at "+client[0]+" connected. Current status: ")
+                    writeLog("SM Client at "+clientIP+" connected. Sending success code")
+                    writeWeb("SM Client at "+clientIP+" connected. Current status: ")
                     writeWeb (tabulate(service_list, headers=["Service", "Status"]))
-                    inactive ='The following services are not running on '+client[0]+' at startup:\n'
+                    inactive ='The following services are not running on '+clientIP+' at startup:\n'
                     for service in service_list:
                         if service[1] != 'active':
                             inactive = inactive+service[0]+'\n'
@@ -96,16 +101,16 @@ if __name__ == "__main__":
                         
             except socket.timeout:
                 if client_status == 2: # Client was previously connected now got diconnected and not reconnecting
-                    #notifySM("Client device disconnected","Client device at "+client[0]+ " changed state to disconnected")
-                    writeWeb("Client device at "+client[0]+ " changed state to disconnected")
+                    #notifySM("Client device disconnected","Client device at "+clientIP+ " changed state to disconnected")
+                    writeWeb("Client device at "+clientIP+ " changed state to disconnected")
                     client_status = 1
                 elif client_status == 0: # Client didnt connected on time
-                    #notifySM("No connection from Client device","Client device at "+client[0]+ " has not initiated a connection")
-                    writeWeb("Client device at "+client[0]+ " has not initiated a connection")
+                    #notifySM("No connection from Client device","Client device at "+clientIP+ " has not initiated a connection")
+                    writeWeb("Client device at "+clientIP+ " has not initiated a connection")
                     client_status = 1
                 
             except ConnectionError as e:
-                writeLog("Error: "+str(e)+" on "+client[0]+". Re-initiating listening.")
+                writeWeb("Error: "+str(e)+" on "+clientIP+". Re-initiating listening.")
                 err_count = err_count + 1
                 
                 if err_count > 3:
@@ -126,14 +131,13 @@ if __name__ == "__main__":
                 if status == '0':
                     conn.close()
                     if status_list == '0':
-                        writeWeb("Client at "+client[0]+" terminated by user")
-                        writeLog("Honeypot at "+client[0]+" terminated by user")
-                        #notifyHPUsers('0',client[0],0)
+                        writeWeb("Client at "+clientIP+" terminated by user")
+                        #notifyHPUsers('0',clientIP,0)
                         client_status = 0
                         break
                     else:
-                        writeLog("Honeypot at "+client[0]+" terminated due to script error: "+ status_list)
-                        #notifyHPUsers('0',client[0],remarks)
+                        writeWeb("Honeypot at "+clientIP+" terminated due to script error: "+ status_list)
+                        #notifyHPUsers('0',clientIP,remarks)
                         break
                 status_list = eval(status_list)    
                 if status_list == service_list:
@@ -164,16 +168,15 @@ if __name__ == "__main__":
             
             except socket.timeout:
                 if client_status == 2:
-                    #notifySM("Client device disconnected","Client device at "+client[0]+ " changed state to disconnected")
-                    writeWeb("Client device at "+client[0]+ " changed state to disconnected")
+                    #notifySM("Client device disconnected","Client device at "+clientIP+ " changed state to disconnected")
+                    writeWeb("Client device at "+clientIP+ " changed state to disconnected")
                     client_status = client_status+1
                 elif client_status < 5:
                     client_status = client_status+1
 
             
             except ConnectionError as e:
-                writeLog("Error: "+str(e)+" on "+client[0]+". Re-initiating listening.")
-                writeWeb("Error: "+str(e)+" on "+client[0]+". Re-initiating listening.")
+                writeWeb("Error: "+str(e)+" on "+clientIP+". Re-initiating listening.")
                 err_count = err_count + 1
                 
                 if err_count > 3:

@@ -7,17 +7,17 @@ import sys
 import subprocess
 
 def writeLog(msg):
-    logFile = "log.txt"
+    logFile = "/smart/log.txt"
     with open(logFile,"at") as logger:
         # getting current date and time
         now = datetime.datetime.now() 
         logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
     
 def writeWeb(msg):
-    with open("web/index.html","rt") as f:
+    with open("/smart/web/index.html","rt") as f:
         content = f.readlines()
-    with open("web/index.html","wt") as f:
-        f.write(msg+str(content))
+    with open("/smart/web/index.html","wt") as f:
+        f.write("<p>"+msg+"</p>\n"+str(content))
     writeLog(msg)
 	
 if __name__ == "__main__": 
@@ -30,18 +30,23 @@ if __name__ == "__main__":
     err_count = 0
     SEPARATOR = ":"
     client = []
-    settingsFile = "settings/"+sys.argv[1]+".conf"
+    settingsFile = "/smart/settings/"+sys.argv[1]+".conf"
     
-    with open("web/index.html","wt") as f:
-        f.write("Honey server container"+sys.argv[1]+" starting")
+    with open("/smart/web/index.html","wt") as f:
+        f.write("<html><head><title>SMART Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
+        
+    writeWeb("Honeypot server container"+sys.argv[1]+" starting")
     
     with open(settingsFile,'rt') as f:
         settings = f.readline()
 
-    clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split('SEPARATOR')
+    clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split(SEPARATOR)
     # client_ip:port to listen:encrypted passcode:interval:BUFFER_SIZE: RPC port
-    webService = str(int(listenPort)+1000)
-    p = subprocess.Popen(["python3","./web.py",webService])
+    listenPort = int(listenPort)
+    webService = str(listenPort+1000)
+    BUFFER_SIZE = int(BUFFER_SIZE)
+    rpcPort = int(rpcPort)
+    p = subprocess.Popen(["python3","/smart/web.py",webService])
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('',int(listenPort)))
     while True:
