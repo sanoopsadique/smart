@@ -41,7 +41,7 @@ if __name__ == "__main__":
     
     clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split(':')
     webService = str(int(listenPort)+1000)
-    p = subprocess.Popen(["python3 ","web.py",webService])
+    p = subprocess.Popen(["python3","./web.py",webService])
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('',int(client[1])))
     client_status = 0

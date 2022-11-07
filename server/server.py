@@ -44,7 +44,7 @@ if __name__ == "__main__":
     del settings_info[0]
     #writeLog("Program started successfully, getting list of clients")
     writeWeb("<html><head><title>SMART Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
-    contSettingsFolder = "containers/"
+    contSettingsFolder = "./containers/"
     client_qty=len(settings_info)
     honeyPots = []
     statusMon= [] 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     writeWeb("<p>Honeypot container(s) deloyment complete</p>/n")
                 
     print("Starting web service")
-    p = subprocess.Popen(["python3 ","web.py",webService])
+    p = subprocess.Popen(["python3","./web.py",webService])
     time.sleep(2)
     print("Web service started. Visit \\\\localhost\\:"+webService+"\\ to view web page")
     print("Listening for notification requests:")
