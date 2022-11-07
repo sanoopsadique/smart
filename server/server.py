@@ -65,10 +65,10 @@ if __name__ == "__main__":
         with open(fileName,'wt') as f:
             f.write(client[0]+":"+client[1]+":"+client[2]+":"+client[3]+":"+BUFFER_SIZE+":"+rpcListen)
         
-        os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' --name sm-'+client[1]+ 'sanoopsadique/smart:latest python3 /smart/smCserver.py sm-'+client[1])
+        os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' --name sm-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/smCserver.py sm-'+client[1])
         deployedContainers.append('sm-'+client[1])
         webport = str(int(client[1])+1000)
-        writeWeb("<p>Status monitoring server container for client at "+client[0]+ "started. <a href=\"\\\\localhost:"+webport+ "\\ target=_blank> Click here to view status</a></p>\n")
+        writeWeb("<p>Status monitoring server container for client at "+client[0]+ "started. <a href=\"\\\\localhost:"+webport+"\\ target=_blank> Click here to view status</a></p>\n")
     
          
     print("Status Monitoring container(s) deloyed, starting honeypot container deployment")
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         with open(fileName,'wt') as f:
             #add values to settings file client_ip\nport\npasscode\ninterval\npipe\nwebport
             f.write(client[0]+":"+client[1]+":"+client[2]+":"+client[3]+":"+BUFFER_SIZE+":"+rpcListen) 
-        os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' --name hp-'+client[1]+ 'sanoopsadique/smart:latest python3 /smart/hpCserver.py hp-'+client[1]) 
+        os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' --name hp-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/hpCserver.py hp-'+client[1]) 
         deployedContainers.append('hp-'+client[1])
         webport = str(int(client[1])+1000)
         print("Honeypot server container for client at "+client[0]+ "started. View status on \\\\localhost:"+webport+ "\\ \n")
