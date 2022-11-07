@@ -16,7 +16,7 @@ def writeWeb(msg):
     with open("web/index.html","rt") as f:
         content = f.readlines()
     with open("web/index.html","wt") as f:
-        f.write(msg+content)
+        f.write(msg+str(content))
     writeLog(msg)
 
 
