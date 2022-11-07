@@ -4,7 +4,7 @@ import os
 import subprocess
 import socket
 
-rootFolder = '/etc/smart/server'
+rootFolder = '/etc/smart/server/'
 def writeLog(msg):
     global rootFolder
     logFile = rootFolder+"log.txt"
