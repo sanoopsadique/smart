@@ -1,11 +1,10 @@
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import time, os, datetime
-import socket, sys
+import sys
 
 
 hostName = ""
-serverPort = 5001
+serverPort = int(sys.argv[1])
 
 class MyServer(BaseHTTPRequestHandler): 
     def do_GET(self):

@@ -5,27 +5,28 @@ import subprocess
 import socket
 
 
-def writeLog(msg,logFile):
-    logger = open(logFile,"at")
-    # getting current date and time
-    now = datetime.datetime.now() 
-    logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
-    logger.close()
+def writeLog(msg):
+    logFile = "log.txt"
+    with open(logFile,"at") as logger:
+        # getting current date and time
+        now = datetime.datetime.now() 
+        logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
 
 def writeWeb(msg):
     with open("web/index.html","rt") as f:
         content = f.readlines()
     with open("web/index.html","wt") as f:
         f.write(msg+content)
+    writeLog(msg)
 
 
 if __name__ == "__main__": 
     
-  
-    print("SMART Server starting")
+    with open("web/index.html","wt") as f:
+        f.write("SMART Server starting")
     
     settings_info = []
-    with open("settings.txt","rt") as f:
+    with open("settings.conf","rt") as f:
         settings_temp = f.readlines()
 
         for line in settings_temp:
@@ -36,12 +37,12 @@ if __name__ == "__main__":
 
     SEPARATOR = ":"
     BUFFER_SIZE = int(settings_info[0])
-    logFile=settings_info[1]
+    webService= settings_info[1]
     rpcListen = int(settings_info[2])
     del settings_info[0]
     del settings_info[0]
     del settings_info[0]
-    #writeLog("Program started successfully, getting list of clients",logFile)
+    #writeLog("Program started successfully, getting list of clients")
     writeWeb("<html><head><title>SMART Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
     contSettingsFolder = "containers/"
     client_qty=len(settings_info)
@@ -51,20 +52,21 @@ if __name__ == "__main__":
         mode,ip,port,passcode,interval = client.split(SEPARATOR)
         passcode = hashlib.md5(passcode.encode()).hexdigest()
         if mode == 'H':
-            honeyPots.append([ip,port,passcode])
+            honeyPots.append([ip,port,passcode,interval])
         elif mode == 'M':
             statusMon.append([ip,port,passcode,interval])
     
     print("Settings read, deloying containers")
     
-    
+    deployedContainers = []
     for client in statusMon:
                 
-        fileName = contSettingsFolder+"/sm-"+client[1]
+        fileName = contSettingsFolder+"/sm-"+client[1]+".conf"
         with open(fileName,'wt') as f:
             f.write(client[0]+":"+client[1]+":"+client[2]+":"+client[3]+":"+BUFFER_SIZE+":"+rpcListen)
         
-        os.system('docker run -d -v '+contSettingsFolder+ ':/smart/settings -p '+client[1]+ ':' + client[1]+ '--hostname sm-'+client[1]+ 'sanoopsadique/smart python3 /smart/smCserver.py sm-'+client[1]) 
+        os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ '--name sm-'+client[1]+ 'sanoopsadique/smart:latest python3 /smart/smCserver.py sm-'+client[1])
+        deployedContainers.append('sm-'+client[1])
         webport = str(int(client[1])+1000)
         writeWeb("<p>Status monitoring server container for client at "+client[0]+ "started. <a href=\"\\\\localhost:"+webport+ "\\ target=_blank> Click here to view status</a></p>\n")
     
@@ -73,13 +75,12 @@ if __name__ == "__main__":
     writeWeb("<p>Status Monitoring container(s) deloyed, starting honeypot container deployment</p>/n")
                 
     for client in honeyPots:
-        fileName = contSettingsFolder+"/hp-"+client[1]
+        fileName = contSettingsFolder+"/hp-"+client[1]+".conf"
         with open(fileName,'wt') as f:
             #add values to settings file client_ip\nport\npasscode\ninterval\npipe\nwebport
-            f.write(client[0]+":"+client[1]+":"+client[2]+":"+":"+BUFFER_SIZE+":"+rpcListen)
-        
-        os.system('docker run -d -v '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ 'sanoopsadique/smart:latest python3 /smart/smCserver.py hp-'+client[1]) 
-        
+            f.write(client[0]+":"+client[1]+":"+client[2]+":"+client[3]+":"+BUFFER_SIZE+":"+rpcListen) 
+        os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ '--name hp-'+client[1]+ 'sanoopsadique/smart:latest python3 /smart/hpCserver.py hp-'+client[1]) 
+        deployedContainers.append('hp-'+client[1])
         webport = str(int(client[1])+1000)
         print("Honeypot server container for client at "+client[0]+ "started. View status on \\\\localhost:"+webport+ "\\ \n")
         writeWeb("<p>Honeypot server container for client at "+client[0]+ "started. <a href=\"\\\\localhost:"+webport+ "\\ target=_blank> Click here to view status</a></p>\n")
@@ -88,10 +89,11 @@ if __name__ == "__main__":
     writeWeb("<p>Honeypot container(s) deloyment complete</p>/n")
                 
     print("Starting web service")
-    p = subprocess.Popen(["python3 ","web/mainweb.py"])
+    p = subprocess.Popen(["python3 ","web.py",webService])
     time.sleep(2)
-    print("Web service started. Visit \\\\localhost\\:"+str(rpcListen)+"\\ to view web page")
+    print("Web service started. Visit \\\\localhost\\:"+webService+"\\ to view web page")
     print("Listening for notification requests:")
+    writeWeb("Listening for notification requests:")
     err_count = 0
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('',rpcListen))
@@ -116,13 +118,15 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Exit request by user. Stopping containers")
         writeWeb("<p>Exit request by user. Stopping containers</p>/n")
-        os.system("docker rm -f $(docker ps -a -q)")
+        for item in deployedContainers:
+            os.system("docker stop "+item)
         p.kill()
         print("Server stopped") 
     
     except Exception as e:
         print("Script error: "+ str(e))
-        os.system("docker rm -f $(docker ps -a -q)")
+        for item in deployedContainers:
+            os.system("docker stop "+item)
         p.kill()
         s.close()
         exit(0)    
