@@ -122,6 +122,7 @@ if __name__ == "__main__":
         writeWeb("<p>Exit request by user. Stopping containers</p>/n")
         for item in deployedContainers:
             os.system("docker stop "+item)
+            os.system("docker rm "+item)
         p.kill()
         print("Server stopped") 
     
@@ -129,6 +130,7 @@ if __name__ == "__main__":
         print("Script error: "+ str(e))
         for item in deployedContainers:
             os.system("docker stop "+item)
+            os.system("docker rm "+item)
         p.kill()
         s.close()
         exit(0)    
