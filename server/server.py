@@ -65,7 +65,7 @@ if __name__ == '__main__':
             honeyPots.append([ip,port,passcode,interval])
         elif mode == 'M':
             statusMon.append([ip,port,passcode,interval])
-    print('Program started, deploying '+client_qty+' containers: ')
+    print('Program started, deploying '+str(client_qty)+' containers: ')
     writeWeb('Settings read, deloying containers')
     
     deployedContainers = []
