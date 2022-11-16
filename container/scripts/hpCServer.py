@@ -14,10 +14,8 @@ def writeLog(msg):
         logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
     
 def writeWeb(msg):
-    with open("/smart/web/index.html","rt") as f:
-        content = f.readlines()
-    with open("/smart/web/index.html","wt") as f:
-        f.write("<p>"+msg+"</p>\n"+str(content))
+    with open("/smart/web/index.html","at") as f:
+        f.write("<p>"+msg+"</p>\n")
     writeLog(msg)
 	
 if __name__ == "__main__": 
@@ -60,7 +58,7 @@ if __name__ == "__main__":
                     conn.close()
                     continue
                 recvd = conn.recv(BUFFER_SIZE).decode()
-                status, passcode = recvd.split('SEPARATOR')
+                status, passcode = recvd.split(SEPARATOR)
                 if passcode != passKey:
                     #passcodes do not match
                     writeWeb("Honeypot at "+clientIP+" has wrong passcode")

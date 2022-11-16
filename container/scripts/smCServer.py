@@ -15,10 +15,8 @@ def writeLog(msg):
         logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
     
 def writeWeb(msg):
-    with open("/smart/web/index.html","rt") as f:
-        content = f.readlines()
-    with open("/smart/web/index.html","wt") as f:
-        f.write("<p>"+msg+"<\p>\n"+str(content))
+    with open("/smart/web/index.html","at") as f:
+        f.write("<p>"+msg+"</p>\n")
     writeLog(msg)
 	
 if __name__ == "__main__": 
@@ -38,7 +36,7 @@ if __name__ == "__main__":
         
     writeWeb("Status monitoring server container"+sys.argv[1]+" starting")
     
-    with open(sys.argv[1],'rt') as f:
+    with open(settingsFile,'rt') as f:
         settings = f.readline()
     
     clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split(SEPARATOR)
@@ -54,7 +52,7 @@ if __name__ == "__main__":
     while True:
         while True:
             try:
-                writeWeb("Starting listening for Status monitoring on port "+listenPort)
+                writeWeb("Starting listening for Status monitoring on port "+str(listenPort))
                 s.settimeout(30)
                 s.listen(5)
                 conn, addr = s.accept()
@@ -65,12 +63,11 @@ if __name__ == "__main__":
                     continue
                 
                 recvd = conn.recv(BUFFER_SIZE).decode()
-                passcode,service_list= recvd.split(':')
+                passcode,service_list= recvd.split(SEPARATOR)
                 service_list = eval(service_list)
                 
                 if passcode != passKey:
                     #passcodes do not match
-                    writeLog("SM CLient at "+clientIP+" has wrong passcode")
                     writeWeb("SM CLient at "+clientIP+" has wrong passcode")
                     # sending status: 0 - connected, 1 - disconnected due to passcode mismatch
                     status = "wrong-pass"
@@ -80,15 +77,10 @@ if __name__ == "__main__":
                     continue
                 else:
                     client_status = 2
-                    writeLog("SM Client at "+clientIP+" connected. Sending success code")
                     writeWeb("SM Client at "+clientIP+" connected. Current status: ")
                     writeWeb (tabulate(service_list, headers=["Service", "Status"]))
-                    inactive ='The following services are not running on '+clientIP+' at startup:\n'
-                    for service in service_list:
-                        if service[1] != 'active':
-                            inactive = inactive+service[0]+'\n'
-                    #notifySM("Services inactive at startup",inactive) 
-                    status = "success:"+client[3]
+                    
+                    status = "success:"+interval
                     conn.sendall(status.encode())
                     time.sleep(2) 
                     break
@@ -117,14 +109,14 @@ if __name__ == "__main__":
                     exit(0)
             
             except Exception as e:
-                writeWeb("Script error: "+e)
+                writeWeb("Script error: "+str(e))
                 s.close()
                 exit(0)    
         
         while True:
             client_status = 2
             try:
-                conn.settimeout(int(client[3]))
+                conn.settimeout(int(interval))
                 status_list = conn.recv(BUFFER_SIZE).decode()
                 orig_status = status_list
                 status,status_list = status_list.split(':')
@@ -183,7 +175,7 @@ if __name__ == "__main__":
                     exit(0)    
                 
             except Exception as e:
-                writeWeb("Script error: "+e)
+                writeWeb("Script error: "+str(e))
                 s.close()
                 exit(0)
             
