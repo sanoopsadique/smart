@@ -71,7 +71,7 @@ if __name__ == '__main__':
         writeWeb('Status monitoring server container for client at '+client[0]+ ' started. <a href=\"http://localhost:'+webport+'\" target=_blank> Click here to view status</a>\n')
     
          
-    writeWeb('<p>Status Monitoring container(s) deloyed, starting honeypot container deployment</p>/n')
+    writeWeb('Status Monitoring container(s) deloyed, starting honeypot container deployment\n')
                 
     for client in honeyPots:
         webport = str(int(client[1])+1000)
@@ -82,10 +82,10 @@ if __name__ == '__main__':
         os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' -p '+webport + ':' + webport + ' --name hp-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/hpCServer.py hp-'+client[1]) 
         deployedContainers.append('hp-'+client[1])
         webport = str(int(client[1])+1000)
-        writeWeb('Honeypot server container for client at '+client[0]+ 'started. <a href=\"http://localhost:'+webport+'\" target=_blank> Click here to view status</a></p>\n')
+        writeWeb('Honeypot server container for client at '+client[0]+ ' started. <a href=\"http://localhost:'+webport+'\" target=_blank> Click here to view status</a>\n')
         
     print('Honeypot container(s) deloyed.')
-    writeWeb('<p>Honeypot container(s) deloyment complete</p>/n')
+    writeWeb('Honeypot container(s) deloyment complete\n')
                 
     print('Starting web service')
     p = subprocess.Popen(['python3',rootFolder+'web.py',webService])
@@ -104,7 +104,7 @@ if __name__ == '__main__':
                 recvd = conn.recv(int(BUFFER_SIZE)).decode()
                 cMode,message = recvd.split(':')
                 print('Message from client ' + addr + ' to ' + cMode + ' recipents: '+message)
-                writeWeb('<p>Message from client ' + addr + ' to ' + cMode + ' recipents: '+message+'</p>/n')
+                writeWeb('Message from client ' + addr + ' to ' + cMode + ' recipents: '+message+'\n')
                 conn.close()
                 err_count = 0
             except ConnectionError as e:
@@ -116,7 +116,7 @@ if __name__ == '__main__':
                     break     
     except KeyboardInterrupt:
         print('Exit request by user. Stopping containers')
-        writeWeb('<p>Exit request by user. Stopping containers</p>/n')
+        writeWeb('Exit request by user. Stopping containers')
         for item in deployedContainers:
             os.system('docker stop '+item)
             os.system('docker rm '+item)

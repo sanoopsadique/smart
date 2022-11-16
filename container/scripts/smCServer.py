@@ -29,16 +29,16 @@ if __name__ == '__main__':
     client = []
     SEPARATOR = ':'
     settingsFile = '/smart/settings/'+sys.argv[1]+'.conf'
-    
-    with open('/smart/web/index.html','wt') as f:
-        f.write('<html><head><title>SMART Container Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n')
-        
-    writeWeb('Status monitoring server container '+sys.argv[1]+' starting')
-    
     with open(settingsFile,'rt') as f:
         settings = f.readline()
     
     clientIP, listenPort, passKey, interval, BUFFER_SIZE, rpcPort = settings.split(SEPARATOR)
+    
+    with open('/smart/web/index.html','wt') as f:
+        f.write('<html><head><title>'+sys.argv[1]+' Status</title><meta http-equiv=\"refresh\" content=\"'+interval+'\"></head><body>\n')
+        
+    writeWeb('Status monitoring server container '+sys.argv[1]+' starting')
+    
     listenPort = int(listenPort)
     webService = str(listenPort+1000)
     BUFFER_SIZE = int(BUFFER_SIZE)
