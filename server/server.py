@@ -68,7 +68,7 @@ if __name__ == '__main__':
         os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' -p '+webport + ':' + webport  +' --name sm-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/smCServer.py sm-'+client[1])
         deployedContainers.append('sm-'+client[1])
         webport = str(int(client[1])+1000)
-        writeWeb('Status monitoring server container for client at '+client[0]+ ' started. <a href=\"sm\" onmouseover=\"javascript:event.target.port='+webport+'\"> target=_blank> Click here to view status</a>\n')
+        writeWeb('Status monitoring server container for client at '+client[0]+ ' started. <a href=\"sm\" onmouseover=\"javascript:event.target.port='+webport+'\" target=_blank> Click here to view status</a>\n')
     
          
     writeWeb('Status Monitoring container(s) deloyed, starting honeypot container deployment\n')
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' -p '+webport + ':' + webport + ' --name hp-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/hpCServer.py hp-'+client[1]) 
         deployedContainers.append('hp-'+client[1])
         webport = str(int(client[1])+1000)
-        writeWeb('Honeypot server container for client at '+client[0]+ ' started. <a href=\"#:'+webport+'\" target=_blank> Click here to view status</a>\n')
+        writeWeb('Honeypot server container for client at '+client[0]+ ' started. <a href=\"hp\" onmouseover=\"javascript:event.target.port='+webport+'\" target=_blank> Click here to view status</a>\n')
         
     print('Honeypot container(s) deloyed.')
     writeWeb('Honeypot container(s) deloyment complete\n')
