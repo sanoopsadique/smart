@@ -3,6 +3,9 @@ import hashlib
 import os
 import subprocess
 import socket
+import sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 
 rootFolder = '/etc/smart/server/'
 def writeLog(msg):
@@ -18,6 +21,19 @@ def writeWeb(msg):
     with open(rootFolder+'web/index.html','at') as f:
         f.write('<p>'+msg+'</p>')
     writeLog(msg)
+
+class MyServer(BaseHTTPRequestHandler): 
+    def do_GET(self):
+        global service
+        global refresh
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        filePath = '/etc/smart/server/web/index.html'
+        with open(filePath,'rt') as f:	
+            for line in f:
+                self.wfile.write(bytes(line, 'utf-8'))
+        self.wfile.write(bytes('</body></html>', 'utf-8'))
 
 
 if __name__ == '__main__': 
@@ -87,39 +103,23 @@ if __name__ == '__main__':
     print('Container(s) deloyed, starting web service.')
     writeWeb('Honeypot container(s) deloyment complete\n')
                 
-    p = subprocess.Popen(['python3',rootFolder+'web.py',webService])
     time.sleep(2)
-    print('Web service started. Visit \"http://localhost:'+webService+'\" to view web page')
-    print('Listening for notification requests:')
-    writeWeb('Listening for notification requests:')
-    err_count = 0
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('',int(rpcListen)))
+    print('Web service started. Visit \"http://localhost:'+webService+'\" to view web page or create request')
+    writeWeb('Listening for RPC:')
+    
+    webServer = HTTPServer(('', int(webService)), MyServer)
+    
     try:
-        while True:
-            try:
-                s.listen(client_qty)
-                conn, addr = s.accept()
-                recvd = conn.recv(int(BUFFER_SIZE)).decode()
-                cMode,message = recvd.split(':')
-                print('Message from client ' + addr + ' to ' + cMode + ' recipents: '+message)
-                writeWeb('Message from client ' + addr + ' to ' + cMode + ' recipents: '+message+'\n')
-                conn.close()
-                err_count = 0
-            except ConnectionError as e:
-                print('Connection Error: '+str(e))
-                err_count = err_count + 1
-                #notifyHPUsers(2,client[0],0)
-                
-                if err_count > 3:
-                    break     
+        webServer.serve_forever()
+
+       
     except KeyboardInterrupt:
         print('Exit request by user. Stopping containers')
         writeWeb('Exit request by user. Stopping containers')
         for item in deployedContainers:
             os.system('docker stop '+item)
             os.system('docker rm '+item)
-        p.kill()
+        webServer.server_close()
         print('Server stopped') 
     
     except Exception as e:
@@ -127,7 +127,5 @@ if __name__ == '__main__':
         for item in deployedContainers:
             os.system('docker stop '+item)
             os.system('docker rm '+item)
-        p.kill()
-        s.close()
-        exit(0)    
+            exit(0)    
     
