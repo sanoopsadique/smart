@@ -26,17 +26,28 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
+        rest = self.path[1:]
+        print(rest)
+        if rest == '?r=stop':
+            self.wfile.write(bytes('<html><head><title>SMART Core Server Status</title></head><body>Server Stopped</body></html>', 'utf-8'))
+            exitServer()
         filePath = '/etc/smart/server/web/index.html'
         with open(filePath,'rt') as f:	
             for line in f:
                 self.wfile.write(bytes(line, 'utf-8'))
-        self.wfile.write(bytes('</body></html>', 'utf-8'))
+        self.wfile.write(bytes('<a href=\"?r=stop\">Click here to stop server</a></body></html>', 'utf-8'))
 
+def exitServer():
+    for item in deployedContainers:
+            os.system('docker stop '+item)
+            os.system('docker rm '+item)
+    webServer.server_close()
+    print('Server stopped')
 
 if __name__ == '__main__': 
     
     with open(rootFolder+'web/index.html','wt') as f:
-        f.write('<html><head><title>SMART Core Server Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n')
+        f.write('<html><head><title>SMART Core Server Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body><a href=\"?r=stop\">Click here to stop server</a>\n')
     
     settings_info = []
     with open(rootFolder+'settings.conf','rt') as f:
@@ -76,7 +87,6 @@ if __name__ == '__main__':
             f.write(client[0]+':'+client[1]+':'+client[2]+':'+client[3]+':'+BUFFER_SIZE+':'+webService)
         
         os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' -p '+webport + ':' + webport  +' --name sm-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/smCServer.py sm-'+client[1])
-        print(' : Success')
         deployedContainers.append('sm-'+client[1])
         webport = str(int(client[1])+1000)
         writeWeb('Status monitoring server container for client at '+client[0]+ ' started. <a href=\"sm\" onmouseover=\"javascript:event.target.port='+webport+'\" target=_blank> Click here to view status</a>\n')
@@ -91,7 +101,6 @@ if __name__ == '__main__':
             #add values to settings file client_ip\nport\npasscode\ninterval\npipe\nwebport
             f.write(client[0]+':'+client[1]+':'+client[2]+':'+client[3]+':'+BUFFER_SIZE+':'+webService) 
         os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' -p '+webport + ':' + webport + ' --name hp-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/hpCServer.py hp-'+client[1]) 
-        print(' : Success')
         deployedContainers.append('hp-'+client[1])
         webport = str(int(client[1])+1000)
         writeWeb('Honeypot server container for client at '+client[0]+ ' started. <a href=\"hp\" onmouseover=\"javascript:event.target.port='+webport+'\" target=_blank> Click here to view status</a>\n')
@@ -100,7 +109,10 @@ if __name__ == '__main__':
     writeWeb('Honeypot container(s) deloyment complete\n')
                 
     time.sleep(2)
-    print('Web service started. Visit \"http://localhost:'+webService+'\" to view web page or create request')
+    if (webService!='80'):
+        print('Web service started. Visit \"http://localhost:'+webService+'/\" to view web page or create request')
+    else:
+        print('Web service started. Visit \"http://localhost/\" to view web page or create request')
     writeWeb('Listening for RPC:')
     
     webServer = HTTPServer(('', int(webService)), MyServer)
