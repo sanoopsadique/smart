@@ -19,10 +19,10 @@ store info in variables
 close file
 '''
 def writeLog(msg,logFile):
-    logger = open(logFile,"at")
+    logger = open(logFile,'at')
     # getting current date and time
     now = datetime.datetime.now() 
-    logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
+    logger.write(now.strftime('%y-%m-%d-%H:%M:%S')+' - '+msg+'\n')
     logger.close()
 
 settings_file = open('settings.txt','rt')
@@ -39,7 +39,7 @@ for line in settings_temp:
 server_ip,server_port,buff_size,listening_port,logFile,passcode = settings_info
 md5C = hashlib.md5(passcode.encode()).hexdigest()
 passcode = '0:'+md5C
-writeLog("Script started, settings read",logFile)
+writeLog('Script started, settings read',logFile)
 buff_size=int(buff_size)
 server_port = int(server_port)
 listening_port = int(listening_port)
@@ -54,7 +54,7 @@ try:
     hpConnect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     hpConnect.bind(('',listening_port))
 except:
-    print("Listening port "+str(listening_port)+" is currently in use. Exiting program")
+    print('Listening port '+str(listening_port)+' is currently in use. Exiting program')
     exit(0)
     
 # connect to server
@@ -63,82 +63,82 @@ while True:
     #connect to the server
     try:
         serverConnect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("Connecting to server at "+server_ip)
+        print('Connecting to server at '+server_ip)
         time.sleep(3)
         serverConnect.connect((server_ip,server_port))
         try:
             serverConnect.sendall(passcode.encode())
-            print("Passcode sent.. waiting for response")
+            print('Passcode sent.. waiting for response')
             recvd = serverConnect.recv(buff_size)
             recvd=recvd.decode()
             if recvd == 'wrong-pass':
-                writeLog("Server denied connection due to passcode mismatch. Program exiting.",logFile)
+                writeLog('Server denied connection due to passcode mismatch. Program exiting.',logFile)
                 time.sleep(2)
                 exit(0)
             elif recvd == 'success':
-                print("Server connection established. Starting honeypot process.")
-                writeLog("Server connection established. Starting honeypot process.",logFile)
+                print('Server connection established. Starting honeypot process.')
+                writeLog('Server connection established. Starting honeypot process.',logFile)
                 
                 while True:
                     try:
-                        print("Starting listening on "+str(listening_port))
+                        print('Starting listening on '+str(listening_port))
                         hpConnect.listen(buff_size)
                         attk, addr = hpConnect.accept()
-                        writeLog("Connection request from "+addr[0]+". Sending message to server",logFile)
-                        print("Connection request from "+addr[0]+". Sending message to server")
+                        writeLog('Connection request from '+addr[0]+'. Sending message to server',logFile)
+                        print('Connection request from '+addr[0]+'. Sending message to server')
                         msg = '1:'+addr[0]
                         serverConnect.sendall(msg.encode())
-                        print("Attack informed to Server. Starting listening again")
-                        attk.sendall("Hello attacker".encode())
+                        print('Attack informed to Server. Starting listening again')
+                        attk.sendall('Hello attacker'.encode())
                         time.sleep(1)
                         attk.close()
                         
                     except ConnectionError as e:
-                        print("Server connection closed. Retrying in ")
+                        print('Server connection closed. Retrying in ')
                         i = 10 
                         while i>0:
-                            print(i, end=" ")
+                            print(i, end=' ')
                             sys.stdout.flush()
                             time.sleep(1)
                             i = i - 1
-                        print("")
+                        print('')
                         break
                     except Exception as e:
-                        writeLog("Honeyport Error: "+str(e),logFile)
-                        print("Honeyport Error: "+str(e))
+                        writeLog('Honeyport Error: '+str(e),logFile)
+                        print('Honeyport Error: '+str(e))
             else:
-                print("Unknown status received, retrying connection")
+                print('Unknown status received, retrying connection')
                 serverConnect.close()
                 exit(0)
         except KeyboardInterrupt:
-            print("Exit request by user. Sending message to server and shutting down")
+            print('Exit request by user. Sending message to server and shutting down')
             serverConnect.sendall('0:0'.encode())
             hpConnect.shutdown(0)
-            writeLog("Exit request by user. Sending message to server and shutting down",logFile)
+            writeLog('Exit request by user. Sending message to server and shutting down',logFile)
             serverConnect.close()
             exit()
         except Exception as e:
-            writeLog("Error: "+str(e),logFile)
+            writeLog('Error: '+str(e),logFile)
             serverConnect.close()
         
     except KeyboardInterrupt:
-        print("Exit request by user. Shutting down")
+        print('Exit request by user. Shutting down')
         serverConnect.close()
         exit()
     
     except ConnectionError as e:
-        print("Error connecting to server. Retrying in ")
+        print('Error connecting to server. Retrying in ')
         serverConnect.close()
         i = 10 
         while i>0:
-            print(i, end=" ")
+            print(i, end=' ')
             sys.stdout.flush()
             time.sleep(1)
             i = i - 1
-        print("")
+        print('')
     except Exception as e:
-        print("Script error: "+str(e))
-        writeLog("Script error: "+str(e),logFile)
+        print('Script error: '+str(e))
+        writeLog('Script error: '+str(e),logFile)
         serverConnect.close()
         exit()
 

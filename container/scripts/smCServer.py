@@ -7,18 +7,18 @@ import sys
 import subprocess
 
 def writeLog(msg):
-    logFile = "/smart/log.txt"
-    with open(logFile,"at") as logger:
+    logFile = '/smart/log.txt'
+    with open(logFile,'at') as logger:
         # getting current date and time
         now = datetime.datetime.now() 
-        logger.write(now.strftime("%y-%m-%d-%H:%M:%S")+" - "+msg+"\n")
+        logger.write(now.strftime('%y-%m-%d-%H:%M:%S')+' - '+msg+'\n')
     
 def writeWeb(msg):
-    with open("/smart/web/index.html","at") as f:
-        f.write("<p>"+msg+"</p>\n")
+    with open('/smart/web/index.html','at') as f:
+        f.write('<p>'+msg+'</p>\n')
     writeLog(msg)
 	
-if __name__ == "__main__": 
+if __name__ == '__main__': 
 #def statusMon_server(client,BUFFER_SIZE,logFile):
     #Create socket to the ip and listen of particular number of seconds
     #Once connected wait for services msg [(service_name,status),(service_name,status)] 
@@ -27,13 +27,13 @@ if __name__ == "__main__":
     # Client_status:
     # 0 - never attempted connected, 1 - previous unsuccessful connection, 2 - connected, 5 - reset connection due to no heartbeat
     client = []
-    SEPARATOR = ":"
-    settingsFile = "/smart/settings/"+sys.argv[1]+".conf"
+    SEPARATOR = ':'
+    settingsFile = '/smart/settings/'+sys.argv[1]+'.conf'
     
-    with open("/smart/web/index.html","wt") as f:
-        f.write("<html><head><title>SMART Container Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
+    with open('/smart/web/index.html','wt') as f:
+        f.write('<html><head><title>SMART Container Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n')
         
-    writeWeb("Status monitoring server container "+sys.argv[1]+" starting")
+    writeWeb('Status monitoring server container '+sys.argv[1]+' starting')
     
     with open(settingsFile,'rt') as f:
         settings = f.readline()
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     webService = str(listenPort+1000)
     BUFFER_SIZE = int(BUFFER_SIZE)
     rpcPort = int(rpcPort)
-    p = subprocess.Popen(["python3","/smart/web.py",webService])
+    p = subprocess.Popen(['python3','/smart/web.py',webService])
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('',listenPort))
     client_status = 0
@@ -51,13 +51,13 @@ if __name__ == "__main__":
     while True:
         while True:
             try:
-                writeWeb("Starting listening for Status monitoring on port "+str(listenPort))
+                writeWeb('Starting listening for Status monitoring on port '+str(listenPort))
                 s.settimeout(30)
                 s.listen(5)
                 conn, addr = s.accept()
                 
                 if addr[0] != clientIP:
-                    writeWeb("Incoming connection from unexpected Honeypot client at "+clientIP)
+                    writeWeb('Incoming connection from unexpected Honeypot client at '+clientIP)
                     conn.close()
                     continue
                 
@@ -67,49 +67,49 @@ if __name__ == "__main__":
                 
                 if passcode != passKey:
                     #passcodes do not match
-                    writeWeb("SM CLient at "+clientIP+" has wrong passcode")
+                    writeWeb('SM CLient at '+clientIP+' has wrong passcode')
                     # sending status: 0 - connected, 1 - disconnected due to passcode mismatch
-                    status = "wrong-pass"
+                    status = 'wrong-pass'
                     conn.sendall(status.encode())
                     time.sleep(2) 
                     conn.close()
                     continue
                 else:
                     client_status = 2
-                    writeWeb("SM Client at "+clientIP+" connected. Current status: ")
+                    writeWeb('SM Client at '+clientIP+' connected. Current status: ')
                     for service in service_list:
                         writeWeb (service[0] + ' ---> ' + service[1])
                     
-                    status = "success:"+interval
+                    status = 'success:'+interval
                     conn.sendall(status.encode())
                     time.sleep(2) 
                     break
                 err_count = 0
             
             except KeyboardInterrupt:
-                writeWeb("Exit request by user. Shutting down server")
+                writeWeb('Exit request by user. Shutting down server')
                 s.close()
                 exit()
                         
             except socket.timeout:
                 if client_status == 2: # Client was previously connected now got diconnected and not reconnecting
-                    #notifySM("Client device disconnected","Client device at "+clientIP+ " changed state to disconnected")
-                    writeWeb("Client device at "+clientIP+ " changed state to disconnected")
+                    #notifySM('Client device disconnected','Client device at '+clientIP+ ' changed state to disconnected')
+                    writeWeb('Client device at '+clientIP+ ' changed state to disconnected')
                     client_status = 1
                 elif client_status == 0: # Client didnt connected on time
-                    #notifySM("No connection from Client device","Client device at "+clientIP+ " has not initiated a connection")
-                    writeWeb("Client device at "+clientIP+ " has not initiated a connection")
+                    #notifySM('No connection from Client device','Client device at '+clientIP+ ' has not initiated a connection')
+                    writeWeb('Client device at '+clientIP+ ' has not initiated a connection')
                     client_status = 1
                 
             except ConnectionError as e:
-                writeWeb("Error: "+str(e)+" on "+clientIP+". Re-initiating listening.")
+                writeWeb('Error: '+str(e)+' on '+clientIP+'. Re-initiating listening.')
                 err_count = err_count + 1
                 
                 if err_count > 3:
                     exit(0)
             
             except Exception as e:
-                writeWeb("Script error: "+str(e))
+                writeWeb('Script error: '+str(e))
                 s.close()
                 exit(0)    
         
@@ -123,60 +123,60 @@ if __name__ == "__main__":
                 if status == '0':
                     conn.close()
                     if status_list == '0':
-                        writeWeb("Client at "+clientIP+" terminated by user")
+                        writeWeb('Client at '+clientIP+' terminated by user')
                         #notifyHPUsers('0',clientIP,0)
                         client_status = 0
                         break
                     else:
-                        writeWeb("Honeypot at "+clientIP+" terminated due to script error: "+ status_list)
+                        writeWeb('Honeypot at '+clientIP+' terminated due to script error: '+ status_list)
                         #notifyHPUsers('0',clientIP,remarks)
                         break
                 status_list = eval(status_list)    
                 if status_list == service_list:
-                    writeWeb("No change in service status")
+                    writeWeb('No change in service status')
                     service_list = status_list
                     continue
                     
                 else:
                     if len(service_list) != len(status_list): 
-                        writeWeb("Unexpected status update message")
+                        writeWeb('Unexpected status update message')
                         continue
                     i=0
                     while i < len(service_list):
                         if service_list[i][1] != status_list[i][1]:
-                            writeWeb("Status of "+status_list[i][0]+" changed from "+ service_list[i][1] +" to "+status_list[i][1])
+                            writeWeb('Status of '+status_list[i][0]+' changed from '+ service_list[i][1] +' to '+status_list[i][1])
                         i= i+1
                     service_list = status_list
-                    writeWeb("New Status:")
+                    writeWeb('New Status:')
                     for service in service_list:
                         writeWeb (service[0] + ' ---> ' + service[1])
                     
                 err_count = 0
             
             except KeyboardInterrupt:
-                writeWeb("Exit request by user. Shutting down server")
+                writeWeb('Exit request by user. Shutting down server')
                 s.close()
                 exit()
             
             
             except socket.timeout:
                 if client_status == 2:
-                    #notifySM("Client device disconnected","Client device at "+clientIP+ " changed state to disconnected")
-                    writeWeb("Client device at "+clientIP+ " changed state to disconnected")
+                    #notifySM('Client device disconnected','Client device at '+clientIP+ ' changed state to disconnected')
+                    writeWeb('Client device at '+clientIP+ ' changed state to disconnected')
                     client_status = client_status+1
                 elif client_status < 5:
                     client_status = client_status+1
 
             
             except ConnectionError as e:
-                writeWeb("Error: "+str(e)+" on "+clientIP+". Re-initiating listening.")
+                writeWeb('Error: '+str(e)+' on '+clientIP+'. Re-initiating listening.')
                 err_count = err_count + 1
                 
                 if err_count > 3:
                     exit(0)    
                 
             except Exception as e:
-                writeWeb("Script error: "+str(e))
+                writeWeb('Script error: '+str(e))
                 s.close()
                 exit(0)
             
