@@ -33,7 +33,7 @@ if __name__ == "__main__":
     with open("/smart/web/index.html","wt") as f:
         f.write("<html><head><title>SMART Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
         
-    writeWeb("Honeypot server container"+sys.argv[1]+" starting")
+    writeWeb("Honeypot server container "+sys.argv[1]+" starting")
     
     with open(settingsFile,'rt') as f:
         settings = f.readline()

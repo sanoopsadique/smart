@@ -3,7 +3,6 @@
 import socket
 import datetime
 import time
-from tabulate import tabulate
 import sys
 import subprocess
 
@@ -34,7 +33,7 @@ if __name__ == "__main__":
     with open("/smart/web/index.html","wt") as f:
         f.write("<html><head><title>SMART Container Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body>\n")
         
-    writeWeb("Status monitoring server container"+sys.argv[1]+" starting")
+    writeWeb("Status monitoring server container "+sys.argv[1]+" starting")
     
     with open(settingsFile,'rt') as f:
         settings = f.readline()
@@ -78,7 +77,8 @@ if __name__ == "__main__":
                 else:
                     client_status = 2
                     writeWeb("SM Client at "+clientIP+" connected. Current status: ")
-                    writeWeb (tabulate(service_list, headers=["Service", "Status"]))
+                    for service in service_list:
+                        writeWeb (service[0] + ' ---> ' + service[1])
                     
                     status = "success:"+interval
                     conn.sendall(status.encode())
@@ -148,7 +148,8 @@ if __name__ == "__main__":
                         i= i+1
                     service_list = status_list
                     writeWeb("New Status:")
-                    writeWeb (tabulate(service_list, headers=["Service", "Status"]))
+                    for service in service_list:
+                        writeWeb (service[0] + ' ---> ' + service[1])
                     
                 err_count = 0
             
