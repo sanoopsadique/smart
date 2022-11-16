@@ -27,15 +27,17 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         rest = self.path[1:]
-        print(rest)
+        
         if rest == '?r=stop':
-            self.wfile.write(bytes('<html><head><title>SMART Core Server Status</title></head><body>Server Stopped</body></html>', 'utf-8'))
+            print("RPC to shutdown server ")
+            self.wfile.write(bytes('<html><head><title>SMART Core Server Status</title></head><body>Stopping Server</body></html>', 'utf-8'))
             exitServer()
+            
         filePath = '/etc/smart/server/web/index.html'
         with open(filePath,'rt') as f:	
             for line in f:
                 self.wfile.write(bytes(line, 'utf-8'))
-        self.wfile.write(bytes('<a href=\"?r=stop\">Click here to stop server</a></body></html>', 'utf-8'))
+        self.wfile.write(bytes('<a href=\"?r=stop\"><button class=\"button\">Click here to stop server</button></a></body></html>', 'utf-8'))
 
 def exitServer():
     for item in deployedContainers:
@@ -43,11 +45,15 @@ def exitServer():
             os.system('docker rm '+item)
     webServer.server_close()
     print('Server stopped')
+    exit()
 
 if __name__ == '__main__': 
     
+    with open(rootFolder+'web/default','rt') as f:
+        web_temp = f.readlines()
+
     with open(rootFolder+'web/index.html','wt') as f:
-        f.write('<html><head><title>SMART Core Server Status</title><meta http-equiv=\"refresh\" content=\"5\"></head><body><a href=\"?r=stop\">Click here to stop server</a>\n')
+        f.write(web_temp)
     
     settings_info = []
     with open(rootFolder+'settings.conf','rt') as f:
