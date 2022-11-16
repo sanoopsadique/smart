@@ -1,9 +1,6 @@
 import datetime, time
 import hashlib
 import os
-import subprocess
-import socket
-import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
@@ -54,11 +51,8 @@ if __name__ == '__main__':
     SEPARATOR = ':'
     BUFFER_SIZE = settings_info[0]
     webService= settings_info[1]
-    rpcListen = settings_info[2]
     del settings_info[0]
     del settings_info[0]
-    del settings_info[0]
-    #writeLog('Program started successfully, getting list of clients')
     
     contSettingsFolder = rootFolder+'containers/'
     client_qty=len(settings_info)
@@ -71,7 +65,7 @@ if __name__ == '__main__':
             honeyPots.append([ip,port,passcode,interval])
         elif mode == 'M':
             statusMon.append([ip,port,passcode,interval])
-    
+    print('Program started, deploying '+client_qty+' containers: ')
     writeWeb('Settings read, deloying containers')
     
     deployedContainers = []
@@ -79,9 +73,10 @@ if __name__ == '__main__':
         webport = str(int(client[1])+1000)
         fileName = contSettingsFolder+'sm-'+client[1]+'.conf'
         with open(fileName,'wt') as f:
-            f.write(client[0]+':'+client[1]+':'+client[2]+':'+client[3]+':'+BUFFER_SIZE+':'+rpcListen)
+            f.write(client[0]+':'+client[1]+':'+client[2]+':'+client[3]+':'+BUFFER_SIZE+':'+webService)
         
         os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' -p '+webport + ':' + webport  +' --name sm-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/smCServer.py sm-'+client[1])
+        print(' : Success')
         deployedContainers.append('sm-'+client[1])
         webport = str(int(client[1])+1000)
         writeWeb('Status monitoring server container for client at '+client[0]+ ' started. <a href=\"sm\" onmouseover=\"javascript:event.target.port='+webport+'\" target=_blank> Click here to view status</a>\n')
@@ -94,13 +89,14 @@ if __name__ == '__main__':
         fileName = contSettingsFolder+'hp-'+client[1]+'.conf'
         with open(fileName,'wt') as f:
             #add values to settings file client_ip\nport\npasscode\ninterval\npipe\nwebport
-            f.write(client[0]+':'+client[1]+':'+client[2]+':'+client[3]+':'+BUFFER_SIZE+':'+rpcListen) 
+            f.write(client[0]+':'+client[1]+':'+client[2]+':'+client[3]+':'+BUFFER_SIZE+':'+webService) 
         os.system('docker run -dtv '+contSettingsFolder+':/smart/settings -p '+client[1]+ ':' + client[1]+ ' -p '+webport + ':' + webport + ' --name hp-'+client[1]+ ' sanoopsadique/smart:latest python3 /smart/hpCServer.py hp-'+client[1]) 
+        print(' : Success')
         deployedContainers.append('hp-'+client[1])
         webport = str(int(client[1])+1000)
         writeWeb('Honeypot server container for client at '+client[0]+ ' started. <a href=\"hp\" onmouseover=\"javascript:event.target.port='+webport+'\" target=_blank> Click here to view status</a>\n')
         
-    print('Container(s) deloyed, starting web service.')
+    print('starting web service.')
     writeWeb('Honeypot container(s) deloyment complete\n')
                 
     time.sleep(2)
