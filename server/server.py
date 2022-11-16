@@ -60,7 +60,7 @@ if __name__ == "__main__":
     
     deployedContainers = []
     for client in statusMon:
-                
+        webport = str(int(client[1])+1000)
         fileName = contSettingsFolder+"sm-"+client[1]+".conf"
         with open(fileName,'wt') as f:
             f.write(client[0]+":"+client[1]+":"+client[2]+":"+client[3]+":"+BUFFER_SIZE+":"+rpcListen)
