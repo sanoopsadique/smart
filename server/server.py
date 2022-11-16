@@ -49,11 +49,9 @@ def exitServer():
 
 if __name__ == '__main__': 
     
-    with open(rootFolder+'web/default','rt') as f:
-        web_temp = f.readlines()
-
-    with open(rootFolder+'web/index.html','wt') as f:
-        f.write(web_temp)
+    with open(rootFolder+'web/index.html','wt') as f1:
+        with open(rootFolder+'web/default','rt') as f2:
+            f1.write(f2.readline())
     
     settings_info = []
     with open(rootFolder+'settings.conf','rt') as f:
